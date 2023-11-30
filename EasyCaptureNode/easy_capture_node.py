@@ -22,7 +22,14 @@ class EasyCaptureNode:
     @classmethod
     def INPUT_TYPES(s):
         # return {"required": {"image": ("STRING", {"multiline": True})}}
-        return {"required": {"image": ("STRING", {})}}
+        return {
+            "required": {
+                "image": ("STRING", {})
+            },
+            "optional": {
+              "text": ("STRING", {"forceInput": True}),     
+            },
+        }
 
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "load_image"
@@ -50,10 +57,10 @@ class EasyCaptureNode:
 
 
 NODE_CLASS_MAPPINGS = {
-    "LoadBase64Image": EasyCaptureNode,
+    "EasyCaptureNode": EasyCaptureNode,
 }
 
 # A dictionary that contains the friendly/humanly readable titles for the nodes
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "LoadBase64Image": "Load base64 encoded image",
+    "EasyCaptureNode": "Capture screen and convert to base64 encoded image",
 }
