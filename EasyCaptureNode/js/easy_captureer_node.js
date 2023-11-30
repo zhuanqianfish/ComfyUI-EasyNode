@@ -284,7 +284,7 @@ class EasyCapture {
     canvasObj.style.height =  drageBox.style.height ;
     canvasObj.style.top = parseInt(videoObj.style.height) + 25 + "px";
     context.drawImage( videoObj,  
-                  drageBox.offsetLeft/rate_w, drageBox.offsetTop/rate_w, parseInt(drageBox.style.width)/rate_w, parseInt(drageBox.style.height)/rate_w, 
+                  drageBox.offsetLeft/rate_w, (drageBox.offsetTop)/rate_w-25, parseInt(drageBox.style.width)/rate_w, (parseInt(drageBox.style.height))/rate_w-25, 
                   0,                          0,                          canvasObj.width ,                         canvasObj.height );
     let base64Str = canvasObj.toDataURL("image/png");
     this.image.value = base64Str.replace("data:image/png;base64,","");
