@@ -11,7 +11,7 @@ import { api } from "/scripts/api.js";
 
 // ================= CLASS PAINTER ================
 class EasyCapture {
-  // panelPaintBox = null;
+  timer = null;
   constructor(node, devObj) {
     this.node = node;
     this.image = node.widgets.find((w) => w.name === "image");
@@ -23,9 +23,9 @@ class EasyCapture {
     const panelPaintBox = document.createElement("div");
     panelPaintBox.innerHTML = `
       <div class="operatePanel">
-        <button btnFunc="startCapture" id="startCaptureBtn" title="Start Capture">Start Capture</button>
-        <button btnFunc="stopCapture" id="stopCaptureBtn" title="Start Capture">Stop Capture</button>
-        <button btnFunc="randerToCanvas" id="randerToCanvasBtn"  title="randerToCanvas">Rander</button>
+        <button btnFunc="startCapture" id="startCaptureBtn" class="paramy" title="Start Capture">Start Capture</button>
+        <button btnFunc="stopCapture" id="stopCaptureBtn"  class="alert" style="display:none;" title="Start Capture">Stop Capture</button>
+        <button btnFunc="randerToCanvas" id="randerToCanvasBtn"  style="display:none;"  title="randerToCanvas">Rander</button>
       </div>
       <div class="func_box">
         <div id="videoContainer" style="position: inherit;">
@@ -40,7 +40,7 @@ class EasyCapture {
             <span class="easynode_point easynode_left"></span>
           </div>
           <video id="easyvideo" autoplay="" style="width: 500px; height: 400px; background: rgb(204, 204, 204);display: block;"></video>
-          <canvas id="easycanvas" width="0" height="0" style="display: block;width: 500px; height: 400px; background: rgb(85, 85, 85); position: absolute; top: 425px;max-width:500px;"></canvas>
+          <canvas id="easycanvas" width="0" height="0" style="display: block;width: 500px; height: 400px; background: rgb(85, 85, 85); position: absolute; top: 427px;max-width:500px;"></canvas>
         </div>
       </div>
       <style>
@@ -50,9 +50,21 @@ class EasyCapture {
         height:25px;
         text-align:center;
       }
+      .panelPaintBox div{
+        box-sizing:border-box;
+      }
       .operatePanel button{
         width:150px;height:20px
       }
+      .panelPaintBox  .paramy{
+        color:#ffffff;
+        background:#68CCF0;
+      }
+      .panelPaintBox  .alert{
+        color:#ffffff;
+        background:#F0A35D;
+      }
+
       .easynode_point {
         width: 10px;
         height: 10px;
@@ -119,7 +131,6 @@ class EasyCapture {
     this.func_box = panelPaintBox.querySelector(
       ".func_box"
     );
-    this.panelPaintBox = panelPaintBox;
     this.bindEvents();
   }
 
@@ -128,17 +139,32 @@ class EasyCapture {
     let operatePanel = this.panelPaintBox.querySelectorAll(
       ".operatePanel"
     );
-    this.panelPaintBox.querySelector(
+   
+    let startBtn = this.panelPaintBox.querySelector(
       "#startCaptureBtn"
-    ).onclick = (e) =>{
-      this.startCapture();
-    };
-    this.panelPaintBox.querySelector(
+    );
+    let stopBtn = this.panelPaintBox.querySelector(
       "#stopCaptureBtn"
-    ).onclick = (e) =>{
+    );
+    startBtn.onclick = (e) =>{
+      this.startCapture();
+      startBtn.style.display = 'none';
+      stopBtn.style.display = 'inline-block';
+
+    };
+   
+    stopBtn.onclick = (e) =>{
       this.stopCapture();
+      stopBtn.style.display = 'none';
+      startBtn.style.display = 'inline-block';
     };
 
+    this.panelPaintBox.querySelector(
+      "#randerToCanvasBtn"
+    ).onclick = (e) =>{
+      this.switchToCanvas();
+    };
+    
 
     
     let points = this.panelPaintBox.querySelectorAll(
@@ -234,7 +260,7 @@ class EasyCapture {
     let videoObj = this.video
     let drageBox = this.drageBox;
     try {
-      let that = this
+      var that = this
       videoObj.srcObject =
         await navigator.mediaDevices.getDisplayMedia({
           video: {
@@ -247,7 +273,8 @@ class EasyCapture {
         // that.switchToCanvas();
       }, false);
       videoObj.addEventListener("play", function() {
-        that.switchToCanvas();
+        //that.switchToCanvas();
+        that.timer = setInterval(function(){that.switchToCanvas()}.bind(that), 300);
       }, false);
       videoObj.addEventListener('canplay', e => {
         // console.log(e) //get video true width
@@ -256,8 +283,9 @@ class EasyCapture {
         let videoRate = videoObj.videoWidth/videoObj.videoHeight;
         drageBox.style.width = "500px";
         drageBox.style.height = 500/videoRate + "px";
+
       })
-     
+      
     } catch (err) {
       console.error(err);
     }
@@ -282,13 +310,15 @@ class EasyCapture {
     canvasObj.height = videoObj.videoHeight;
     canvasObj.style.width = drageBox.style.width ;
     canvasObj.style.height =  drageBox.style.height ;
-    canvasObj.style.top = parseInt(videoObj.style.height) + 25 + "px";
+    canvasObj.style.top = parseInt(videoObj.style.height) + 27 + "px";
+    //console.log(rate_w, drageBox.offsetLeft, drageBox.offsetTop, drageBox.style.width, drageBox.style.height, canvasObj.width, canvasObj.height);
     context.drawImage( videoObj,  
-                  drageBox.offsetLeft/rate_w, (drageBox.offsetTop)/rate_w-25, parseInt(drageBox.style.width)/rate_w, (parseInt(drageBox.style.height))/rate_w-25, 
+                  drageBox.offsetLeft/rate_w + 2/rate_w, (drageBox.offsetTop)/rate_w - 23/rate_w , parseInt(drageBox.style.width)/rate_w - 4/rate_w, (parseInt(drageBox.style.height))/rate_w -  4/rate_w, 
                   0,                          0,                          canvasObj.width ,                         canvasObj.height );
     let base64Str = canvasObj.toDataURL("image/png");
     this.image.value = base64Str.replace("data:image/png;base64,","");
-    // window.requestAnimationFrame(this.switchToCanvas());
+    let testStr = this.image.value.substring( this.image.value.length - 30, this.image.value.length)
+    // console.log('draw canvas111',  testStr);
   }
 
   stopCapture(){
@@ -297,11 +327,9 @@ class EasyCapture {
     this.video.srcObject = null;
     let context =  this.easycanvas.getContext("2d");
     context.clearRect(0, 0, this.easycanvas.width,  this.easycanvas.height);
+    clearInterval( this.timer);
   }
-
-  randerToCanvas(){
-    this.switchToCanvas()
-  }
+  
   //=================  End Capture event ================= 
   
 }
@@ -332,7 +360,7 @@ function PainterWidget(node, inputName, inputData, app) {
           .translateSelf(margin, margin + y),
         scale = new DOMMatrix().scaleSelf(transform.a, transform.d);
 
-      Object.assign(this.painter_wrap.style, {  //跟随缩放
+      Object.assign(this.painter_wrap.style, {  //auto scale
         left: `${transform.a * margin * left_offset + transform.e}px`,
         top: `${transform.d + transform.f + top_offset}px`,
         width: `${w * transform.a}px`,
@@ -341,13 +369,13 @@ function PainterWidget(node, inputName, inputData, app) {
         zIndex: app.graph._nodes.indexOf(node),
       });
 
-      Object.assign(this.painter_wrap.children[0].style, {  //跟随缩放
+      Object.assign(this.painter_wrap.children[0].style, { 
         transformOrigin: "0 0",
         transform: scale,
         width: w + "px",
         height: w + "px",
       });
-      this.painter_wrap.hidden = !visible;
+      // this.painter_wrap.hidden = !visible;   // no hidden
     },
   };
   let devElmt = document.createElement("div");
@@ -356,7 +384,7 @@ function PainterWidget(node, inputName, inputData, app) {
 
   widget.parent = node;
   widget.afterQueued = ()=>{  //auto randerToCanvas
-    node.capture.randerToCanvas();
+    node.capture.switchToCanvas();
   }
   // node.capture.makeElements();
   document.body.appendChild(widget.painter_wrap);
@@ -366,7 +394,7 @@ function PainterWidget(node, inputName, inputData, app) {
   // });
 
   // node.addWidget("button", "Rander Picture", "Rander", () => {
-  //   node.capture.randerToCanvas();
+  //   node.capture.switchToCanvas();
   // });
 
   // Add customWidget to node
@@ -376,15 +404,16 @@ function PainterWidget(node, inputName, inputData, app) {
     for (let y in node.widgets) {
       if (node.widgets[y].painter_wrap) {
         node.widgets[y].painter_wrap.remove();
+        clearInterval(node.widgets[y].painter_wrap.timer); 
       }
     }
   };
   node.onResize = function () {
     let [w, h] = this.size;
-    if (w <= 531) w = 530;
+    if (w <= 501) w = 500;
     if (h <= 201) h = 200;
 
-    if (w > 531) {
+    if (w > 501) {
       h = w + 40;
     }
     this.size = [w, h];
@@ -431,7 +460,7 @@ app.registerExtension({
           nodeNamePNG = `${nodeName}.png`;
         console.log(`Create EasyCaptureNode: ${nodeName}`);
         PainterWidget.apply(this, [this, nodeNamePNG, {}, app]);
-        this.setSize([530, 200]);
+        this.setSize([500, 200]);
         return r;
       };
     }
