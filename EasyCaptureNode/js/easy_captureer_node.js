@@ -1,8 +1,8 @@
 /*
  * Title: Easy Capture
  * Author: zhuanqianfish
- * Version: 2023.10.19
- * Github: https://github.com/easypet/ComfyUI_Custom_Nodes_easypet
+ * Version: 2023.12.03
+ * Github: https://github.com/zhuanqianfish/ComfyUI-EasyNode
  */
 
 import { app } from "/scripts/app.js";
@@ -317,7 +317,7 @@ class EasyCapture {
                   0,                          0,                          canvasObj.width ,                         canvasObj.height );
     let base64Str = canvasObj.toDataURL("image/png");
     this.image.value = base64Str.replace("data:image/png;base64,","");
-    let testStr = this.image.value.substring( this.image.value.length - 30, this.image.value.length)
+    // let testStr = this.image.value.substring( this.image.value.length - 30, this.image.value.length)
     // console.log('draw canvas111',  testStr);
   }
 
@@ -456,7 +456,7 @@ app.registerExtension({
         let EasyCaptureNode = app.graph._nodes.filter(
             (wi) => wi.type == "EasyCaptureNode"
           ),
-          nodeName = `Paint_${EasyCaptureNode.length}`,
+          nodeName = `EasyCaptureNode_${EasyCaptureNode.length}`,
           nodeNamePNG = `${nodeName}.png`;
         console.log(`Create EasyCaptureNode: ${nodeName}`);
         PainterWidget.apply(this, [this, nodeNamePNG, {}, app]);
