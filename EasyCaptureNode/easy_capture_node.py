@@ -38,7 +38,10 @@ class EasyCaptureNode:
 
     def load_image(self, image):
         try:
-            # print(image)
+            # print("image:", image)
+            defaultImgData = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAZABkAAD/7AARRHVja3kAAQAEAAAAPAAA/+4ADkFkb2JlAGTAAAAAAf/bAIQABgQEBAUEBgUFBgkGBQYJCwgGBggLDAoKCwoKDBAMDAwMDAwQDA4PEA8ODBMTFBQTExwbGxscHx8fHx8fHx8fHwEHBwcNDA0YEBAYGhURFRofHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8f/8AAEQgAAQABAwERAAIRAQMRAf/EAEoAAQAAAAAAAAAAAAAAAAAAAAgBAQAAAAAAAAAAAAAAAAAAAAAQAQAAAAAAAAAAAAAAAAAAAAARAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AFSD/9k='
+            if(image == 'data:,'):  #no image input
+                image = defaultImgData
             imgdata = base64.b64decode(image)
             i = Image.open(io.BytesIO(imgdata))
             i = ImageOps.exif_transpose(i)
