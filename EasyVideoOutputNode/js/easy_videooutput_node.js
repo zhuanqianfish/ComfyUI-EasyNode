@@ -117,17 +117,17 @@ function  base64ToBlob(data) {
 }
 
 // ================= CREATE PAINTER WIDGET ============
-function PainterWidget(node, inputName, inputData, app) {
+function EasyVideoOutputWidget(node, inputName, inputData, app) {
   node.name = inputName;
   const widget = {
-    type: "painter_widget",
+    type: "ez_videoOutput_widget",
     name: `w${inputName}`,
     callback: () => {},
     draw: function (ctx, _, widgetWidth, y, widgetHeight) {
       const margin = 10,
         left_offset = 0,
         top_offset = 0,
-        visible = app.canvas.ds.scale > 0.6 && this.type === "painter_widget",
+        visible = app.canvas.ds.scale > 0.6 && this.type === "ez_videoOutput_widget",
         w = widgetWidth - margin * 2 - 10,
         clientRectBound = ctx.canvas.getBoundingClientRect(),
         transform = new DOMMatrix()
@@ -229,7 +229,7 @@ app.registerExtension({
           nodeName = `EasyVideoOutput_${EasyVideoOutputNode.length}`,
           nodeNamePNG = `${nodeName}.png`;
         console.log(`Create EasyVideoOutputNode: ${nodeName}`);
-        PainterWidget.apply(this, [this, nodeNamePNG, {}, app]);
+        EasyVideoOutputWidget.apply(this, [this, nodeNamePNG, {}, app]);
         this.setSize([320, 430]);
         return r;
       };
@@ -238,47 +238,48 @@ app.registerExtension({
     const onExecuted = nodeType.prototype.onExecuted
     nodeType.prototype.onExecuted = function (message) {
       const r = onExecuted ? onExecuted.apply(this, message) : undefined
-
       if (this.widgets) {
-        // console.log(this.widgets);
-        const painter_wrap = this.widgets.filter(w => w.type === `painter_widget`)[0].painter_wrap;
-        const video = painter_wrap.querySelector(
-          "#easyvideo2"
-        );
-        const canvas = painter_wrap.querySelector(
-          "#easycanvas"
-        );
-        const context = canvas.getContext('2d')
-        if (message?.images_) {
-          const base64 = message.images_[0]
-          // console.log('base64Data', base64)
-          const image = new Image()
-          image.onload = function () {
-            canvas.width = image.width
-            canvas.height = image.height
-            context.drawImage(image, 0, 0)
+        console.log('fliter', this.widgets.filter(w => w.type === `ez_videoOutput_widget`) );
+        if(this.widgets.filter(w => w.type === `ez_videoOutput_widget`)!==undefined && this.widgets.filter(w => w.type === `ez_videoOutput_widget`).length > 0 ){
+          const painter_wrap = this.widgets.filter(w => w.type === `ez_videoOutput_widget`)[0].painter_wrap;
+          const video = painter_wrap.querySelector(
+            "#easyvideo2"
+          );
+          const canvas = painter_wrap.querySelector(
+            "#easycanvas"
+          );
+          const context = canvas.getContext('2d')
+          if (message?.images_) {
+            const base64 = message.images_[0]
+            // console.log('base64Data', base64)
+            const image = new Image()
+            image.onload = function () {
+              canvas.width = image.width
+              canvas.height = image.height
+              context.drawImage(image, 0, 0)
+            }
+            // console.log(`data:image/jpeg;base64,${base64}`)
+            image.src = `data:image/jpeg;base64,${base64}`
+            if (video.paused) {
+              const stream = canvas.captureStream()
+              const videoTrack = stream.getVideoTracks()[0]
+              video.srcObject = new MediaStream([videoTrack])
+              video.play()
+              video.poster = base64;
+              // video.style.border = "20px solid red";
+            }
           }
-          // console.log(`data:image/jpeg;base64,${base64}`)
-          image.src = `data:image/jpeg;base64,${base64}`
-          if (video.paused) {
-            const stream = canvas.captureStream()
-            const videoTrack = stream.getVideoTracks()[0]
-            video.srcObject = new MediaStream([videoTrack])
-            video.play()
-            video.poster = base64;
-            // video.style.border = "20px solid red";
+          const onRemoved = this.onRemoved
+          this.onRemoved = () => {
+            // cleanupNode(this)
+            return onRemoved?.()
           }
-        }
-        const onRemoved = this.onRemoved
-        this.onRemoved = () => {
-          // cleanupNode(this)
-          return onRemoved?.()
+          this.setSize([
+            this.size[0],
+            this.computeSize([this.size[0], this.size[1]])[1]
+          ])
         }
       }
-      this.setSize([
-        this.size[0],
-        this.computeSize([this.size[0], this.size[1]])[1]
-      ])
       return r
     }
   },

@@ -318,7 +318,7 @@ class EasyCapture {
     let base64Str = canvasObj.toDataURL("image/png");
     this.image.value = base64Str.replace("data:image/png;base64,","");
     // let testStr = this.image.value.substring( this.image.value.length - 30, this.image.value.length)
-    // console.log('draw canvas111',  testStr);
+    //  console.log('draw canvas111',  testStr);
   }
 
   stopCapture(){
@@ -338,17 +338,17 @@ class EasyCapture {
 
 
 // ================= CREATE PAINTER WIDGET ============
-function PainterWidget(node, inputName, inputData, app) {
+function EasyCaptureerWidget(node, inputName, inputData, app) {
   node.name = inputName;
   const widget = {
-    type: "painter_widget",
+    type: "easy_captureer_widget",
     name: `w${inputName}`,
     callback: () => {},
     draw: function (ctx, _, widgetWidth, y, widgetHeight) {
       const margin = 10,
         left_offset = 0,
         top_offset = 0,
-        visible = app.canvas.ds.scale > 0.6 && this.type === "painter_widget",
+        visible = app.canvas.ds.scale > 0.6 && this.type === "easy_captureer_widget",
         w = widgetWidth - margin * 2 - 10,
         clientRectBound = ctx.canvas.getBoundingClientRect(),
         transform = new DOMMatrix()
@@ -436,7 +436,7 @@ app.registerExtension({
     document.head.appendChild(style);
   },
   async setup(app) {
-    let EasyCaptureNode = app.graph._nodes.filter((wi) => wi.type == "EasyCaptureNode");
+    let EasyCaptureNode = app.graph._nodes.filter((wi) => wi.type == "easy_captureer_widget");
 
     if (EasyCaptureNode.length) {
       EasyCaptureNode.map((n) => {
@@ -459,7 +459,7 @@ app.registerExtension({
           nodeName = `EasyCaptureNode_${EasyCaptureNode.length}`,
           nodeNamePNG = `${nodeName}.png`;
         console.log(`Create EasyCaptureNode: ${nodeName}`);
-        PainterWidget.apply(this, [this, nodeNamePNG, {}, app]);
+        EasyCaptureerWidget.apply(this, [this, nodeNamePNG, {}, app]);
         this.setSize([500, 200]);
         return r;
       };
