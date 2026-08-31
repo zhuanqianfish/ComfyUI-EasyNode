@@ -1,0 +1,15 @@
+[project]
+name = "comfyui-easynode"
+description = "Capture window content from other programs, easyway combined with LCM for real-time painting"
+version = "1.0.0"
+license = "LICENSE"
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/zhuanqianfish/ComfyUI-EasyNode"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-EasyNode"
+Icon = ""
